@@ -1,0 +1,9 @@
+{
+    "lasted": {
+        "version": "1.21.11",
+        "ram": "2G",
+        "filters": [
+            "release"
+        ]
+    }
+}
