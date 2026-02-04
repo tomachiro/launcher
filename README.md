@@ -22,18 +22,6 @@ Características
 - Verificación de Java:
   Al iniciar, el launcher comprueba si Java está instalado y muestra una alerta si no lo está.
 
-Estructura del proyecto
------------------------
-launcher/
-├── launcher.py          # Interfaz principal
-├── utils.py             # Funciones auxiliares (RAM, skins, actualización, Java)
-├── profiles.py          # Gestión de perfiles
-├── loaders.py           # Detección de modloaders
-├── launcher_core.py     # Lógica de ejecución del juego
-├── skins_versions/      # Carpeta para versiones con sufijo --skin
-├── username.json        # Configuración persistente del usuario
-├── skin.json            # Configuración persistente de la skin
-
 Requisitos
 ----------
 - Java (JRE/JDK) instalado en el sistema (necesario para ejecutar Minecraft).
