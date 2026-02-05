@@ -2,6 +2,7 @@ import psutil
 import json
 import os
 import requests
+import subprocess
 from tkinter import filedialog
 from PIL import Image, ImageTk
 from pathlib import Path
@@ -15,6 +16,7 @@ SKINS_DIR = Path("skins_versions")
 SKINS_DIR.mkdir(exist_ok=True)
 
 def ram_total_gb():
+    """Devuelve la RAM total en GB."""
     return psutil.virtual_memory().total // (1024**3)
 
 # -------------------------
@@ -22,11 +24,11 @@ def ram_total_gb():
 # -------------------------
 
 def seleccionar_skin(skin_label):
+    """Permite seleccionar un PNG como skin y guarda la ruta en skin.json."""
     ruta = filedialog.askopenfilename(filetypes=[("PNG files","*.png")])
     if ruta:
         with open(SKIN_FILE, "w", encoding="utf-8") as f:
             json.dump({"skin": ruta}, f)
-
         try:
             img = Image.open(ruta).resize((64,64))
             preview = ImageTk.PhotoImage(img)
@@ -36,6 +38,7 @@ def seleccionar_skin(skin_label):
             skin_label.config(text=f"Error cargando skin: {e}")
 
 def cargar_skin(skin_label):
+    """Carga la skin guardada previamente en skin.json y la muestra en el label."""
     if os.path.exists(SKIN_FILE):
         try:
             with open(SKIN_FILE, "r", encoding="utf-8") as f:
@@ -63,6 +66,7 @@ def obtener_versiones_skins():
 # -------------------------
 
 def guardar_username(nombre):
+    """Guarda el nombre de usuario en username.json."""
     try:
         with open(USERNAME_FILE, "w", encoding="utf-8") as f:
             json.dump({"username": nombre}, f)
@@ -70,6 +74,7 @@ def guardar_username(nombre):
         print(f"Error guardando username: {e}")
 
 def cargar_username():
+    """Carga el nombre de usuario desde username.json si existe."""
     if os.path.exists(USERNAME_FILE):
         try:
             with open(USERNAME_FILE, "r", encoding="utf-8") as f:
@@ -111,3 +116,18 @@ def actualizar_launcher(status_label=None):
     except Exception as e:
         if status_label:
             status_label.config(text=f"Error al actualizar: {e}")
+
+# -------------------------
+# Verificación de Java
+# -------------------------
+
+def verificar_java():
+    """
+    Verifica si Java está instalado en el sistema.
+    Devuelve True si está instalado, False si no.
+    """
+    try:
+        subprocess.run(["java", "-version"], check=True, capture_output=True)
+        return True
+    except Exception:
+        return False

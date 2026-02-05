@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk, simpledialog
+from tkinter import ttk, simpledialog, messagebox
 import threading
 from launcher_core import launch_game
 from profiles import cargar_perfiles, guardar_perfiles, obtener_versiones, obtener_ultima_version
@@ -11,7 +11,8 @@ from utils import (
     obtener_versiones_skins,
     cargar_username,
     guardar_username,
-    actualizar_launcher
+    actualizar_launcher,
+    verificar_java
 )
 
 perfiles = cargar_perfiles()
@@ -23,7 +24,7 @@ def jugar():
         status_label.config(text="Perfil no encontrado")
         return
     username = entry_nombre.get().strip() or "steve"
-    guardar_username(username)  # guardar cada vez que se use
+    guardar_username(username)
 
     progress["value"] = 0
     status_label.config(text="Iniciando...")
@@ -53,14 +54,12 @@ def configurar_perfil(perfil_nombre=None):
     config_win.title(f"Configurar perfil: {perfil_nombre}")
     config_win.resizable(False, False)
 
-    # Barra de RAM
     tk.Label(config_win, text="RAM asignada (GB):").pack()
     ram_var = tk.IntVar(value=int(perfil.get("ram", "2G").replace("G","")))
     scale_ram = tk.Scale(config_win, from_=1, to=ram_total_gb(), orient="horizontal",
                          variable=ram_var, length=300)
     scale_ram.pack(pady=5)
 
-    # Filtros de versiones
     frame_filtros = tk.LabelFrame(config_win, text="Tipos de versiones")
     frame_filtros.pack(pady=5)
 
@@ -129,15 +128,23 @@ root.title("Launcher de Tomás")
 root.geometry("500x550")
 root.resizable(False, False)
 
-# Botón de actualizar en esquina superior derecha
+# Botón de actualizar
 btn_actualizar = tk.Button(root, text="Actualizar", command=lambda: actualizar_launcher(status_label))
 btn_actualizar.place(x=420, y=10)
+
+# Verificar Java
+if not verificar_java():
+    messagebox.showwarning(
+        "Java no encontrado",
+        "No se detectó Java en tu sistema.\n\n"
+        "Debes instalar Java (JRE/JDK) para poder jugar Minecraft.\n"
+        "Descárgalo en: https://adoptium.net/"
+    )
 
 tk.Label(root, text="Nombre de usuario:", font=("Arial", 10)).pack()
 entry_nombre = tk.Entry(root, width=30)
 entry_nombre.pack(pady=5)
 
-# Cargar nombre guardado
 nombre_guardado = cargar_username()
 if nombre_guardado:
     entry_nombre.insert(0, nombre_guardado)
@@ -159,16 +166,13 @@ btn_config.pack(pady=5)
 btn_nuevo = tk.Button(root, text="Nuevo perfil", command=lambda: configurar_perfil(None))
 btn_nuevo.pack(pady=5)
 
-# Botón para seleccionar skin global
 tk.Label(root, text="Skin global del launcher:").pack(pady=5)
 skin_label = tk.Label(root)
 skin_label.pack(pady=5)
 
-btn_skin = tk.Button(root, text="Seleccionar skin",
-                     command=lambda: seleccionar_skin(skin_label))
+btn_skin = tk.Button(root, text="Seleccionar skin", command=lambda: seleccionar_skin(skin_label))
 btn_skin.pack(pady=5)
 
-# Cargar skin previa si existe
 cargar_skin(skin_label)
 
 progress = ttk.Progressbar(root, orient="horizontal", length=300, mode="determinate")
@@ -177,7 +181,6 @@ progress.pack_forget()
 status_label = tk.Label(root, text="", font=("Arial", 10))
 status_label.pack(pady=5)
 
-# Guardar username al cerrar ventana
 def on_close():
     username = entry_nombre.get().strip() or "steve"
     guardar_username(username)
